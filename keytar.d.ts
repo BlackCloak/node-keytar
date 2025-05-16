@@ -6,10 +6,11 @@
  *
  * @param service The string service name.
  * @param account The string account name.
+ * @param mode MacOS only - mode "legacy" => uses old Keychain system or "non-legacy" => uses new Keychain system.
  *
  * @returns A promise for the password string.
  */
-export declare function getPassword(service: string, account: string): Promise<string | null>;
+export declare function getPassword(service: string, account: string, mode: string): Promise<string | null>;
 
 /**
  * Add the password for the service and account to the keychain.
@@ -17,24 +18,27 @@ export declare function getPassword(service: string, account: string): Promise<s
  * @param service The string service name.
  * @param account The string account name.
  * @param password The string password.
+ * @param mode MacOS only - mode "legacy" => uses old Keychain system or "non-legacy" => uses new Keychain system.
  *
  * @returns A promise for the set password completion.
  */
-export declare function setPassword(service: string, account: string, password: string): Promise<void>;
+export declare function setPassword(service: string, account: string, password: string, mode: string): Promise<void>;
 
 /**
  * Delete the stored password for the service and account.
  *
  * @param service The string service name.
  * @param account The string account name.
- *
+ * @param mode MacOS only - mode "legacy" => uses old Keychain system or "non-legacy" => uses new Keychain system.
+ * 
  * @returns A promise for the deletion status. True on success.
  */
-export declare function deletePassword(service: string, account: string): Promise<boolean>;
+export declare function deletePassword(service: string, account: string, mode: string): Promise<boolean>;
 
 /**
  * Find a password for the service in the keychain.
- *
+ * Important: on MacOS is not supported by the new keychain system.
+ * 
  * @param service The string service name.
  *
  * @returns A promise for the password string.
@@ -43,7 +47,8 @@ export declare function findPassword(service: string): Promise<string | null>;
 
 /**
  * Find all accounts and passwords for `service` in the keychain.
- *
+ * Important: on MacOS is not supported by the new keychain system.
+ * 
  * @param service The string service name.
  *
  * @returns A promise for the array of found credentials.

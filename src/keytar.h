@@ -17,15 +17,18 @@ enum KEYTAR_OP_RESULT {
 KEYTAR_OP_RESULT SetPassword(const std::string& service,
                              const std::string& account,
                              const std::string& password,
+                             const std::string& mode,
                              std::string* error);
 
 KEYTAR_OP_RESULT GetPassword(const std::string& service,
                              const std::string& account,
+                             const std::string& mode,
                              std::string* password,
                              std::string* error);
 
 KEYTAR_OP_RESULT DeletePassword(const std::string& service,
                                 const std::string& account,
+                                const std::string& mode,
                                 std::string* error);
 
 KEYTAR_OP_RESULT FindPassword(const std::string& service,

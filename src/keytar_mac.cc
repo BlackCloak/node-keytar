@@ -78,6 +78,7 @@ KEYTAR_OP_RESULT AddPassword(const std::string& service,
 KEYTAR_OP_RESULT SetPassword(const std::string& service,
                              const std::string& account,
                              const std::string& password,
+                             const std::string& mode,
                              std::string* error) {
   SecKeychainItemRef item;
   OSStatus result = SecKeychainFindGenericPassword(NULL,
@@ -111,6 +112,7 @@ KEYTAR_OP_RESULT SetPassword(const std::string& service,
 
 KEYTAR_OP_RESULT GetPassword(const std::string& service,
                              const std::string& account,
+                             const std::string& mode,
                              std::string* password,
                              std::string* error) {
   void *data;
@@ -138,6 +140,7 @@ KEYTAR_OP_RESULT GetPassword(const std::string& service,
 
 KEYTAR_OP_RESULT DeletePassword(const std::string& service,
                                 const std::string& account,
+                                const std::string& mode,
                                 std::string* error) {
   SecKeychainItemRef item;
   OSStatus status = SecKeychainFindGenericPassword(NULL,

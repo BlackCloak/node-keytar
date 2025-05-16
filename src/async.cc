@@ -11,11 +11,13 @@ SetPasswordWorker::SetPasswordWorker(
   const std::string& service,
   const std::string& account,
   const std::string& password,
+  const std::string& mode,
   const Napi::Env &env
 ) : AsyncWorker(env),
     service(service),
     account(account),
     password(password),
+    mode(mode),
     deferred(Napi::Promise::Deferred::New(env)) {}
 
 SetPasswordWorker::~SetPasswordWorker() {}
@@ -29,6 +31,7 @@ void SetPasswordWorker::Execute() {
   KEYTAR_OP_RESULT result = keytar::SetPassword(service,
                                                 account,
                                                 password,
+                                                mode,
                                                 &error);
   if (result == keytar::FAIL_ERROR) {
     SetError(error.c_str());
@@ -49,10 +52,12 @@ void SetPasswordWorker::OnError(Napi::Error const &error) {
 GetPasswordWorker::GetPasswordWorker(
   const std::string& service,
   const std::string& account,
+  const std::string& mode,
   const Napi::Env &env
 ) : AsyncWorker(env),
     service(service),
     account(account),
+    mode(mode),
     deferred(Napi::Promise::Deferred::New(env)) {}
 
 GetPasswordWorker::~GetPasswordWorker() {}
@@ -65,6 +70,7 @@ void GetPasswordWorker::Execute() {
   std::string error;
   KEYTAR_OP_RESULT result = keytar::GetPassword(service,
                                                 account,
+                                                mode,
                                                 &password,
                                                 &error);
   if (result == keytar::FAIL_ERROR) {
@@ -94,10 +100,12 @@ void GetPasswordWorker::OnError(Napi::Error const &error) {
 DeletePasswordWorker::DeletePasswordWorker(
   const std::string& service,
   const std::string& account,
+  const std::string& mode,
   const Napi::Env &env
 ) : AsyncWorker(env),
     service(service),
     account(account),
+    mode(mode),
     deferred(Napi::Promise::Deferred::New(env)) {}
 
 DeletePasswordWorker::~DeletePasswordWorker() {}
@@ -108,7 +116,7 @@ Napi::Promise DeletePasswordWorker::Promise() {
 
 void DeletePasswordWorker::Execute() {
   std::string error;
-  KEYTAR_OP_RESULT result = keytar::DeletePassword(service, account, &error);
+  KEYTAR_OP_RESULT result = keytar::DeletePassword(service, account, mode, &error);
   if (result == keytar::FAIL_ERROR) {
     SetError(error.c_str());
   } else if (result == keytar::FAIL_NONFATAL) {

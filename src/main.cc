@@ -30,10 +30,19 @@ Napi::Value SetPassword(const Napi::CallbackInfo& info) {
 
   std::string password = info[2].As<Napi::String>();
 
+  if (!info[3].IsString()) {
+    Napi::TypeError::New(env, "Parameter 'mode' must be a string").
+      ThrowAsJavaScriptException();
+    return env.Null();
+  }
+
+  std::string mode = info[3].As<Napi::String>();
+
   SetPasswordWorker* worker = new SetPasswordWorker(
     service,
     username,
     password,
+    mode,
     env);
   worker->Queue();
   return worker->Promise();
@@ -57,9 +66,18 @@ Napi::Value GetPassword(const Napi::CallbackInfo& info) {
 
   std::string username = info[1].As<Napi::String>();
 
+  if (!info[2].IsString()) {
+    Napi::TypeError::New(env, "Parameter 'mode' must be a string").
+      ThrowAsJavaScriptException();
+    return env.Null();
+  }
+
+  std::string mode = info[2].As<Napi::String>();
+
   GetPasswordWorker* worker = new GetPasswordWorker(
     service,
     username,
+    mode,
     env);
   worker->Queue();
   return worker->Promise();
@@ -83,9 +101,18 @@ Napi::Value DeletePassword(const Napi::CallbackInfo& info) {
 
   std::string username = info[1].As<Napi::String>();
 
+  if (!info[2].IsString()) {
+    Napi::TypeError::New(env, "Parameter 'mode' must be a string").
+      ThrowAsJavaScriptException();
+    return env.Null();
+  }
+
+  std::string mode = info[2].As<Napi::String>();
+
   DeletePasswordWorker *worker = new DeletePasswordWorker(
     service,
     username,
+    mode,
     env);
   worker->Queue();
   return worker->Promise();

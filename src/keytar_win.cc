@@ -116,6 +116,7 @@ std::string getErrorMessage(DWORD errorCode) {
 KEYTAR_OP_RESULT SetPassword(const std::string& service,
                  const std::string& account,
                  const std::string& password,
+                 const std::string& mode,
                  std::string* errStr) {
   LPWSTR target_name = utf8ToWideChar(service + '/' + account);
   if (target_name == NULL) {
@@ -147,6 +148,7 @@ KEYTAR_OP_RESULT SetPassword(const std::string& service,
 
 KEYTAR_OP_RESULT GetPassword(const std::string& service,
                  const std::string& account,
+                 const std::string& mode,
                  std::string* password,
                  std::string* errStr) {
   LPWSTR target_name = utf8ToWideChar(service + '/' + account);
@@ -175,6 +177,7 @@ KEYTAR_OP_RESULT GetPassword(const std::string& service,
 
 KEYTAR_OP_RESULT DeletePassword(const std::string& service,
                     const std::string& account,
+                    const std::string& mode,
                     std::string* errStr) {
   LPWSTR target_name = utf8ToWideChar(service + '/' + account);
   if (target_name == NULL) {

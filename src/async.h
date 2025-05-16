@@ -9,7 +9,7 @@
 class SetPasswordWorker : public Napi::AsyncWorker {
   public:
     SetPasswordWorker(const std::string& service, const std::string& account, const std::string& password,
-                      const Napi::Env &env);
+                      const std::string& mode, const Napi::Env &env);
 
     ~SetPasswordWorker();
 
@@ -22,12 +22,13 @@ class SetPasswordWorker : public Napi::AsyncWorker {
     const std::string service;
     const std::string account;
     const std::string password;
+    const std::string mode;
     Napi::Promise::Deferred deferred;
 };
 
 class GetPasswordWorker : public Napi::AsyncWorker {
   public:
-    GetPasswordWorker(const std::string& service, const std::string& account,
+    GetPasswordWorker(const std::string& service, const std::string& account, const std::string& mode,
                       const Napi::Env &env);
 
     ~GetPasswordWorker();
@@ -40,6 +41,7 @@ class GetPasswordWorker : public Napi::AsyncWorker {
   private:
     const std::string service;
     const std::string account;
+    const std::string mode,
     std::string password;
     bool success;
     const Napi::Promise::Deferred deferred;
@@ -47,7 +49,7 @@ class GetPasswordWorker : public Napi::AsyncWorker {
 
 class DeletePasswordWorker : public Napi::AsyncWorker {
   public:
-    DeletePasswordWorker(const std::string& service, const std::string& account,
+    DeletePasswordWorker(const std::string& service, const std::string& account, const std::string& mode,
                          const Napi::Env &env);
 
     ~DeletePasswordWorker();
@@ -60,6 +62,7 @@ class DeletePasswordWorker : public Napi::AsyncWorker {
   private:
     const std::string service;
     const std::string account;
+    const std::string mode,
     bool success;
     Napi::Promise::Deferred deferred;
 };
