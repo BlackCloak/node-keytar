@@ -55,7 +55,7 @@ const std::string errorStatusToString(OSStatus status) {
 }
 
 //=====================Non Legacy Mode (NL) start=====================
-const bool isModeNL(const std::string& mode) {
+bool isModeNL(const std::string& mode) {
    bool result = (mode == "non-legacy");
    return result;
 }
