@@ -54,6 +54,136 @@ const std::string errorStatusToString(OSStatus status) {
   return errorStr;
 }
 
+//=====================Non Legacy Mode (NL) start=====================
+const bool isModeNL(const std::string& mode) {
+   bool result = (mode == "non-legacy");
+   return result;
+}
+
+KEYTAR_OP_RESULT AddPasswordNL(const std::string& service,
+                               const std::string& account,
+                               const std::string& password,
+                               std::string* error) {
+  CFStringRef serviceStr = CFStringCreateWithCString(NULL, service.c_str(), kCFStringEncodingUTF8);
+  CFStringRef accountStr = CFStringCreateWithCString(NULL, account.c_str(), kCFStringEncodingUTF8);
+  CFDataRef passwordData = CFDataCreate(NULL, reinterpret_cast<const UInt8*>(password.data()), password.length());
+
+  CFMutableDictionaryRef query = CFDictionaryCreateMutable(NULL, 0, &kCFTypeDictionaryKeyCallBacks, &kCFTypeDictionaryValueCallBacks);
+  CFDictionaryAddValue(query, kSecClass, kSecClassGenericPassword);
+  CFDictionaryAddValue(query, kSecAttrService, serviceStr);
+  CFDictionaryAddValue(query, kSecAttrAccount, accountStr);
+  CFDictionaryAddValue(query, kSecValueData, passwordData);
+  CFDictionaryAddValue(query, kSecAttrSynchronizable, kCFBooleanFalse);
+  CFDictionaryAddValue(query, kSecAttrAccessible, kSecAttrAccessibleAfterFirstUnlockThisDeviceOnly);
+
+  OSStatus status = SecItemAdd(query, NULL);
+
+  CFRelease(serviceStr);
+  CFRelease(accountStr);
+  CFRelease(passwordData);
+  CFRelease(query);
+
+  if (status != errSecSuccess) {
+    *error = errorStatusToString(status);
+    return FAIL_ERROR;
+  }
+
+  return SUCCESS;
+}
+
+KEYTAR_OP_RESULT UpdatePasswordNL(const std::string& service,
+                                  const std::string& account,
+                                  const std::string& password,
+                                  std::string* error) {
+  CFStringRef serviceStr = CFStringCreateWithCString(NULL, service.c_str(), kCFStringEncodingUTF8);
+  CFStringRef accountStr = CFStringCreateWithCString(NULL, account.c_str(), kCFStringEncodingUTF8);
+  CFDataRef passwordData = CFDataCreate(NULL, reinterpret_cast<const UInt8*>(password.data()), password.length());
+
+  CFMutableDictionaryRef query = CFDictionaryCreateMutable(NULL, 0, &kCFTypeDictionaryKeyCallBacks, &kCFTypeDictionaryValueCallBacks);
+  CFDictionaryAddValue(query, kSecClass, kSecClassGenericPassword);
+  CFDictionaryAddValue(query, kSecAttrService, serviceStr);
+  CFDictionaryAddValue(query, kSecAttrAccount, accountStr);
+  CFDictionaryAddValue(query, kSecAttrSynchronizable, kCFBooleanFalse);
+
+  CFMutableDictionaryRef update = CFDictionaryCreateMutable(NULL, 0, &kCFTypeDictionaryKeyCallBacks, &kCFTypeDictionaryValueCallBacks);
+  CFDictionaryAddValue(update, kSecValueData, passwordData);
+
+  OSStatus status = SecItemUpdate(query, update);
+
+  CFRelease(serviceStr);
+  CFRelease(accountStr);
+  CFRelease(passwordData);
+  CFRelease(query);
+  CFRelease(update);
+
+  if (status == errSecItemNotFound) {
+    return AddPasswordNL(service, account, password, error);
+  } else if (status != errSecSuccess) {
+    *error = errorStatusToString(status);
+    return FAIL_ERROR;
+  }
+
+  return SUCCESS;
+}
+
+KEYTAR_OP_RESULT DeletePasswordNL(const std::string& service,
+                                  const std::string& account,
+                                  std::string* error) {
+  CFStringRef serviceStr = CFStringCreateWithCString(NULL, service.c_str(), kCFStringEncodingUTF8);
+  CFStringRef accountStr = CFStringCreateWithCString(NULL, account.c_str(), kCFStringEncodingUTF8);
+
+  CFMutableDictionaryRef query = CFDictionaryCreateMutable(NULL, 0, &kCFTypeDictionaryKeyCallBacks, &kCFTypeDictionaryValueCallBacks);
+  CFDictionaryAddValue(query, kSecClass, kSecClassGenericPassword);
+  CFDictionaryAddValue(query, kSecAttrService, serviceStr);
+  CFDictionaryAddValue(query, kSecAttrAccount, accountStr);
+  CFDictionaryAddValue(query, kSecAttrSynchronizable, kCFBooleanFalse);
+
+  OSStatus status = SecItemDelete(query);
+
+  CFRelease(serviceStr);
+  CFRelease(accountStr);
+  CFRelease(query);
+
+  if (status == errSecItemNotFound) {
+    return FAIL_NONFATAL;
+  } else if (status != errSecSuccess) {
+    *error = errorStatusToString(status);
+    return FAIL_ERROR;
+  }
+
+  return SUCCESS;
+}
+
+KEYTAR_OP_RESULT GetPasswordNL(const std::string& service,
+                               const std::string& account,
+                               std::string* password,
+                               std::string* error) {
+    CFStringRef serviceStr = CFStringCreateWithCString(NULL, service.c_str(), kCFStringEncodingUTF8);
+    CFStringRef accountStr = CFStringCreateWithCString(NULL, account.c_str(), kCFStringEncodingUTF8);
+    CFMutableDictionaryRef query = CFDictionaryCreateMutable(NULL, 0, &kCFTypeDictionaryKeyCallBacks, &kCFTypeDictionaryValueCallBacks);
+    CFDictionaryAddValue(query, kSecClass, kSecClassGenericPassword);
+    CFDictionaryAddValue(query, kSecAttrService, serviceStr);
+    CFDictionaryAddValue(query, kSecAttrAccount, accountStr);
+    CFDictionaryAddValue(query, kSecReturnData, kCFBooleanTrue);
+    CFDictionaryAddValue(query, kSecAttrSynchronizable, kCFBooleanFalse);
+    
+    CFTypeRef result = NULL;
+    OSStatus status = SecItemCopyMatching(query, &result);
+    CFRelease(serviceStr);
+    CFRelease(accountStr);
+    CFRelease(query);
+    if (status == errSecItemNotFound) return FAIL_NONFATAL;
+    if (status != errSecSuccess) {
+        *error = errorStatusToString(status);
+        return FAIL_ERROR;
+    }
+    CFDataRef resultData = static_cast<CFDataRef>(result);
+    *password = std::string(reinterpret_cast<const char*>(CFDataGetBytePtr(resultData)), CFDataGetLength(resultData));
+    CFRelease(result);
+    return SUCCESS;
+}
+//=====================Non Legacy Mode (NL) end=====================
+
 KEYTAR_OP_RESULT AddPassword(const std::string& service,
                              const std::string& account,
                              const std::string& password,
@@ -80,6 +210,10 @@ KEYTAR_OP_RESULT SetPassword(const std::string& service,
                              const std::string& password,
                              const std::string& mode,
                              std::string* error) {
+  if (isModeNL(mode)){
+      return UpdatePasswordNL(service, account, password, error);
+  }
+    
   SecKeychainItemRef item;
   OSStatus result = SecKeychainFindGenericPassword(NULL,
                                                    service.length(),
@@ -115,6 +249,10 @@ KEYTAR_OP_RESULT GetPassword(const std::string& service,
                              const std::string& mode,
                              std::string* password,
                              std::string* error) {
+  if (isModeNL(mode)){
+      return GetPasswordNL(service, account, password, error);
+  }
+    
   void *data;
   UInt32 length;
   OSStatus status = SecKeychainFindGenericPassword(NULL,
@@ -142,6 +280,10 @@ KEYTAR_OP_RESULT DeletePassword(const std::string& service,
                                 const std::string& account,
                                 const std::string& mode,
                                 std::string* error) {
+  if (isModeNL(mode)){
+     return DeletePasswordNL(service, account, error);
+  }
+    
   SecKeychainItemRef item;
   OSStatus status = SecKeychainFindGenericPassword(NULL,
                                                    service.length(),
