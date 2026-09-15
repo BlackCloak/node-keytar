@@ -1,0 +1,11 @@
+# CODEOWNERS — node-keytar
+#
+# Team-based ownership (BC-19553). Owners must be real GitHub teams with write
+# access, or GitHub silently ignores them and the PR requests no reviewer at
+# all. Both teams below inherit write from `blackcloak-engineering`.
+#
+# This repo is a fork of atom/node-keytar. The file is additive:
+# upstream ships no CODEOWNERS, so there is nothing at this path to conflict
+# with on an upstream sync. If upstream ever adds one, reconcile then.
+
+*  @BlackCloak/architecture @BlackCloak/groot
